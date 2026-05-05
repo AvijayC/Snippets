@@ -1,0 +1,10 @@
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+data/
+sample_docs/
+retrieval_retry_test_cases.json
+dist/
+*.egg-info/

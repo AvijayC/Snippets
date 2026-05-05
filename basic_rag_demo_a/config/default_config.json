@@ -1,0 +1,103 @@
+{
+  "app_name": "Basic RAG Demo A",
+  "data_dir": "data",
+  "sample_docs_dir": "sample_docs",
+  "api": {
+    "base_url": "http://localhost:8000/v1",
+    "api_key_env": "OPENAI_API_KEY",
+    "base_url_env": "OPENAI_BASE_URL",
+    "model_env": "OPENAI_MODEL",
+    "timeout_seconds": 120,
+    "input_token_limit_per_10m": 450000,
+    "output_token_limit_per_10m": 80000,
+    "total_token_limit_per_10m": null,
+    "allow_local_placeholder_key": true,
+    "local_placeholder_api_key": "lm-studio",
+    "resolve_model_aliases": true
+  },
+  "agents": {
+    "main": {
+      "name": "main",
+      "model": "gpt-oss-120b",
+      "temperature": 0.1,
+      "reasoning_effort": "high",
+      "context_window": 32768,
+      "max_output_tokens": 2048,
+      "min_iterations": 1,
+      "max_iterations": 6,
+      "min_tool_calls": 0,
+      "max_tool_calls": 8,
+      "max_tool_calls_per_iteration": 4,
+      "enabled_tools": [
+        "retrieve_docs",
+        "keyword_search_docs",
+        "lookup_doc_source",
+        "list_database_schema",
+        "validate_sql_query",
+        "run_sql_query"
+      ],
+      "system_instruction": "You are a rigorous RAG and database query agent for a demo app. Your job is to answer accurately, cite sources, and use tools without waiting to be explicitly told when a tool would materially improve the answer.\n\nTool policy:\n- For questions about the included documentation, policies, notes, or source materials, call retrieve_docs before answering.\n- When calling retrieve_docs, usually include summarizer_prompt with focused guidance for the doc_summarizer subagents: what facts, entities, metrics, dates, caveats, comparison points, or evidence to preserve for the final answer.\n- If the user asks for all relevant information, comparisons, caveats, exceptions, coverage across multiple matches, or anything where later matches may add new facts, call retrieve_docs with coverage_mode on and a specific coverage_goal. Do not stop at the first source when other matched chunks may contain distinct information.\n- If a retrieved source tells you to check another named source, document, guide, runbook, appendix, or path, use lookup_doc_source with that reference before producing a final answer.\n- If document retrieval looks too narrow, irrelevant, or empty, retry retrieve_docs with broader or different query terms, a larger top_k, min_score 0, or search_mode keyword before giving up. Adjust summarizer_prompt when the focus changes.\n- Use keyword_search_docs when the user asks about exact wording, specific names, units, field names, phrases, or when you need to verify a literal term from documentation. Increase fuzziness for misspellings or approximate keywords; use match_mode all when every keyword must appear.\n- For questions about available database tables or columns, call list_database_schema before answering.\n- For SQL that the user provides or asks you to produce, call validate_sql_query before claiming it is valid.\n- For questions requiring exact values from the database, first inspect schema if needed, then validate a SELECT-only query, then call run_sql_query only if raw data access is enabled. If raw data access is disabled, explain that limitation and use validation/schema results only.\n- Never invent database rows, document facts, or query results. Distinguish facts from docs, facts from database results, and your own inference.\n\nAnswer policy:\n- Be concise, but include enough detail to be useful.\n- Prefer markdown bullets or short sections when they improve readability.\n- Cite document and database evidence with numbered inline references like [1], [2] that correspond to the Sources list. Never use a generic placeholder such as 【source】.\n- Do not reveal hidden reasoning. It is fine to summarize actions taken, tool calls used, and assumptions.",
+      "system_prompt": "You are a careful RAG and database query assistant. Use tools when they help. Validate SQL before running data queries. Prefer concise answers with the evidence used."
+    },
+    "doc_summarizer": {
+      "name": "doc_summarizer",
+      "model": "gpt-oss-120b",
+      "temperature": 0.0,
+      "reasoning_effort": "high",
+      "context_window": 32768,
+      "max_output_tokens": 800,
+      "min_iterations": 1,
+      "max_iterations": 1,
+      "min_tool_calls": 0,
+      "max_tool_calls": 0,
+      "max_tool_calls_per_iteration": 0,
+      "enabled_tools": [],
+      "system_instruction": "Summarize only the parts of the provided document chunk that are relevant to the question. Preserve useful facts, source titles, and uncertainty. Do not add facts that are not in the chunk.",
+      "system_prompt": "Summarize only the parts of the provided document chunk that are relevant to the question. Preserve useful facts and cite source titles."
+    }
+  },
+  "database": {
+    "path": "data/sample_diet.db",
+    "raw_data_enabled": false,
+    "default_limit": 50,
+    "max_limit": 200,
+    "allow_sqlglot_validation": true
+  },
+  "rag": {
+    "docs_path": "sample_docs",
+    "chroma_path": "data/chroma",
+    "collection_name": "diet_demo_docs",
+    "chunk_chars": 2800,
+    "chunk_overlap_chars": 350,
+    "top_k": 8,
+    "min_score": 0.0,
+    "max_tool_top_k": 20,
+    "summarize_top_k": 3,
+    "summarize_min_relative_score": 0.7,
+    "use_subagent_summaries": true,
+    "fallback_keyword_search": true,
+    "chroma_on_startup": false,
+    "coverage_mode": "auto",
+    "coverage_candidate_k": 8,
+    "coverage_wave_size": 3,
+    "coverage_max_chunks": 4,
+    "coverage_subagent_max_chunks": 3,
+    "coverage_min_candidate_score": 0.01,
+    "coverage_skip_zero_score_candidates": true,
+    "coverage_reference_max_chunks": 4,
+    "coverage_reference_max_depth": 4,
+    "coverage_stop_after_empty_waves": 1,
+    "coverage_min_new_facts": 1,
+    "coverage_follow_references": true
+  },
+  "hooks": {
+    "module": "",
+    "reload_on_config_update": true
+  },
+  "debug": {
+    "store_api_payloads": true,
+    "store_tool_payloads": true,
+    "redact_secrets": true,
+    "max_events_per_chat": 500
+  }
+}

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Basic RAG Demo A</title>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <header>
+      <h1>Basic RAG Demo A</h1>
+      <nav>
+        <button class="tab-button active" data-tab="chat">Chat</button>
+        <button class="tab-button" data-tab="tools">Tools</button>
+        <button class="tab-button" data-tab="config">Config</button>
+        <button class="tab-button" data-tab="debug">Debug</button>
+      </nav>
+    </header>
+
+    <main>
+      <section id="chat" class="tab-panel active">
+        <aside class="sidebar">
+          <button id="new-chat">New chat</button>
+          <button id="delete-history" class="danger-button">Delete all chats</button>
+          <div id="chat-list"></div>
+        </aside>
+        <section class="chat-shell">
+          <div class="chat-status">
+            <div class="chat-metrics">
+              <span id="token-counter">Tokens: prompt 0, completion 0, total 0</span>
+              <span id="context-counter">Context: 0 / 0 tokens</span>
+              <span id="usage-window-counter">10m usage: 0 total; 2m avg: 0 / 10m</span>
+              <div id="usage-window-bar" class="usage-window-bar" aria-label="Token usage over the last 10 minutes"></div>
+            </div>
+            <span id="loading-indicator" class="loading-indicator hidden">
+              <span class="spinner"></span>
+              Waiting for response
+            </span>
+          </div>
+          <div id="messages" class="messages"></div>
+          <form id="message-form" class="message-form">
+            <textarea id="message-input" rows="3" placeholder="Ask about the docs or sample diet database"></textarea>
+            <button type="submit">Send</button>
+          </form>
+        </section>
+      </section>
+
+      <section id="tools" class="tab-panel">
+        <div class="toolbar">
+          <button id="refresh-tools">Refresh tools</button>
+          <label class="inline-toggle">
+            <input id="tools-raw-data-toggle" type="checkbox">
+            Raw row access
+          </label>
+        </div>
+        <div id="tool-controls" class="tool-controls"></div>
+      </section>
+
+      <section id="config" class="tab-panel">
+        <div class="toolbar">
+          <button id="save-config">Save config</button>
+          <button id="reload-config">Reload file defaults</button>
+          <button id="reindex-docs">Reload docs + embeddings</button>
+          <button id="refresh-models">Refresh models</button>
+          <label class="inline-toggle">
+            <input id="raw-data-toggle" type="checkbox">
+            Raw row access
+          </label>
+        </div>
+        <label for="api-key-input">Runtime API key</label>
+        <input id="api-key-input" type="password" autocomplete="off" placeholder="Leave blank to use environment variable">
+        <div class="api-test-panel">
+          <div class="api-test-header">
+            <strong>API connection</strong>
+            <span id="api-test-status" class="status-pill neutral">Not tested</span>
+            <button id="test-api-now" type="button">Test now</button>
+          </div>
+          <pre id="api-test-details">Edit config to test after 5 seconds, or click Test now.</pre>
+        </div>
+        <div class="model-selectors">
+          <label for="main-model-select">Main agent model</label>
+          <select id="main-model-select"></select>
+          <label for="summarizer-model-select">Document summarizer model</label>
+          <select id="summarizer-model-select"></select>
+        </div>
+        <label for="config-json">Runtime config JSON</label>
+        <div class="json-editor">
+          <pre id="config-editor-highlight" class="json-highlight json-editor-highlight" aria-hidden="true"></pre>
+          <textarea id="config-json" class="json-editor-input" spellcheck="false" wrap="off"></textarea>
+        </div>
+        <h2>Parsed JSON Preview</h2>
+        <pre id="config-highlight" class="json-highlight"></pre>
+        <h2>Tools</h2>
+        <pre id="tools-view"></pre>
+        <h2>Endpoint models</h2>
+        <pre id="models-view"></pre>
+        <h2>Indexed docs</h2>
+        <pre id="docs-view"></pre>
+      </section>
+
+      <section id="debug" class="tab-panel">
+        <div class="toolbar">
+          <button id="refresh-debug">Refresh debug</button>
+          <label class="inline-toggle">
+            <input id="auto-debug" type="checkbox" checked>
+            Auto refresh
+          </label>
+        </div>
+        <div class="debug-grid">
+          <section>
+            <h2>Event Stream</h2>
+            <div id="debug-events"></div>
+          </section>
+          <section>
+            <h2>Raw Event JSON</h2>
+            <pre id="debug-json"></pre>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
